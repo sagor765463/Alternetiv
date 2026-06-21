@@ -35,6 +35,8 @@ export default function AdminPanel() {
     message: "",
     video_url: "",
     download_link: "",
+    links: [{ label: "Download", url: "" }],
+    useLinks: false,
     file: null,
     req_name: "",
     react_enabled: true,
@@ -96,13 +98,22 @@ export default function AdminPanel() {
       formData.append("password", uploadForm.password);
       formData.append("message", uploadForm.message);
       formData.append("video_url", uploadForm.video_url);
-      formData.append("download_link", uploadForm.download_link);
+      formData.append("download_link", "");
       formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
-      if (uploadForm.file) {
-        formData.append("file", uploadForm.file);
-      } else {
+      if (uploadForm.useLinks) {
+        // Multi-link mode — no file needed
+        const validLinks = (uploadForm.links || []).filter(l => l.url && l.url.trim());
+        formData.append("links", JSON.stringify(validLinks));
         const dummyFile = new File(["no-file"], "nofile.txt", { type: "text/plain" });
         formData.append("file", dummyFile);
+      } else {
+        formData.append("links", "[]");
+        if (uploadForm.file) {
+          formData.append("file", uploadForm.file);
+        } else {
+          const dummyFile = new File(["no-file"], "nofile.txt", { type: "text/plain" });
+          formData.append("file", dummyFile);
+        }
       }
     } else {
       formData.append("req_name", uploadForm.req_name);
@@ -132,7 +143,7 @@ export default function AdminPanel() {
 
       if (res.ok) {
         setShowUploadModal(false);
-        setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true });
+        setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", links: [{ label: "Download", url: "" }], useLinks: false, file: null, req_name: "", react_enabled: true });
         // Refetch only the affected list (faster than full reload)
         if (tab === "panels") {
           fetch(apiUrl("free-panel-list"), { credentials: "include" })
@@ -200,13 +211,19 @@ export default function AdminPanel() {
   const handleEdit = (item) => {
     setEditingItem(item);
     if (tab === "panels" || tab === "bypasses") {
+      const itemLinks = Array.isArray(item.links) && item.links.length > 0
+        ? item.links
+        : [{ label: "Download", url: "" }];
+      const hasLinks = Array.isArray(item.links) && item.links.some(l => l.url && l.url.trim());
       setUploadForm({
         panel_name: item.panel_name || item.bypass_name || "",
         username: item.username || "",
         password: item.password || "",
         message: item.message || "",
         video_url: item.video_url || "",
-        download_link: item.download_link || "",
+        download_link: "",
+        links: itemLinks,
+        useLinks: hasLinks,
         file: null,
         req_name: "",
         react_enabled: item.react_enabled !== false,
@@ -239,13 +256,21 @@ export default function AdminPanel() {
         formData.append("password", uploadForm.password);
         formData.append("message", uploadForm.message);
         formData.append("video_url", uploadForm.video_url);
-        formData.append("download_link", uploadForm.download_link);
+        formData.append("download_link", "");
         formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
-        if (uploadForm.file) {
-          formData.append("file", uploadForm.file);
-        } else {
+        if (uploadForm.useLinks) {
+          const validLinks = (uploadForm.links || []).filter(l => l.url && l.url.trim());
+          formData.append("links", JSON.stringify(validLinks));
           const dummyFile = new File(["no-file"], "nofile.txt", { type: "text/plain" });
           formData.append("file", dummyFile);
+        } else {
+          formData.append("links", "[]");
+          if (uploadForm.file) {
+            formData.append("file", uploadForm.file);
+          } else {
+            const dummyFile = new File(["no-file"], "nofile.txt", { type: "text/plain" });
+            formData.append("file", dummyFile);
+          }
         }
       } else {
         formData.append("req_name", uploadForm.req_name);
@@ -270,7 +295,7 @@ export default function AdminPanel() {
       if (res.ok) {
         setShowEditModal(false);
         setEditingItem(null);
-        setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true });
+        setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", links: [{ label: "Download", url: "" }], useLinks: false, file: null, req_name: "", react_enabled: true });
         loadData();
       } else {
         alert("Update failed");
@@ -378,7 +403,7 @@ export default function AdminPanel() {
                     <p className="mt-1 text-sm text-gray-400">Manage free panel entries</p>
                   </div>
                   <button
-                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
+                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", links: [{ label: "Download", url: "" }], useLinks: false, file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent"
                   >
                     <Upload size={18} /> Upload Panel
@@ -449,7 +474,7 @@ export default function AdminPanel() {
                     <p className="mt-1 text-sm text-gray-400">Manage free bypass entries</p>
                   </div>
                   <button
-                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
+                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", links: [{ label: "Download", url: "" }], useLinks: false, file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent"
                   >
                     <Upload size={18} /> Upload Bypass
@@ -520,7 +545,7 @@ export default function AdminPanel() {
                     <p className="mt-1 text-sm text-gray-400">Manage requirement files and resources</p>
                   </div>
                   <button
-                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
+                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", links: [{ label: "Download", url: "" }], useLinks: false, file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent"
                   >
                     <Upload size={18} /> Upload Requirement
@@ -692,45 +717,95 @@ export default function AdminPanel() {
                 </>
               )}
 
-              {/* File OR Download Link — pick one */}
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
-                <p className="text-sm font-semibold text-white">📁 Download Source <span className="text-gray-400 font-normal">(Pick one)</span></p>
-                <div className="flex rounded-xl overflow-hidden border border-white/10">
-                  <button
-                    type="button"
-                    onClick={() => setUploadForm({ ...uploadForm, download_link: "", file: uploadForm.file })}
-                    className={`flex-1 py-2 text-sm font-semibold transition ${
-                      !uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    📂 Upload File
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setUploadForm({ ...uploadForm, file: null, download_link: uploadForm.download_link || " " })}
-                    className={`flex-1 py-2 text-sm font-semibold transition ${
-                      uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    🔗 External Link
-                  </button>
+
+              {/* Download Source — only for panels and bypasses */}
+              {(tab === "panels" || tab === "bypasses") && (
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                  <p className="text-sm font-semibold text-white">📁 Download Source <span className="text-gray-400 font-normal">(Pick one)</span></p>
+                  <div className="flex rounded-xl overflow-hidden border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setUploadForm({ ...uploadForm, useLinks: false, file: null })}
+                      className={`flex-1 py-2 text-sm font-semibold transition ${!uploadForm.useLinks ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"}`}
+                    >
+                      📂 Upload File
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUploadForm({ ...uploadForm, useLinks: true, file: null })}
+                      className={`flex-1 py-2 text-sm font-semibold transition ${uploadForm.useLinks ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"}`}
+                    >
+                      🔗 Multiple Links
+                    </button>
+                  </div>
+
+                  {!uploadForm.useLinks ? (
+                    <input
+                      type="file"
+                      onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                      className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
+                    />
+                  ) : (
+                    <div className="space-y-2">
+                      {(uploadForm.links || []).map((link, i) => (
+                        <div key={i} className="flex gap-2 items-center">
+                          <input
+                            type="text"
+                            value={link.label}
+                            onChange={(e) => {
+                              const updated = [...uploadForm.links];
+                              updated[i] = { ...updated[i], label: e.target.value };
+                              setUploadForm({ ...uploadForm, links: updated });
+                            }}
+                            className="w-36 shrink-0 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                            placeholder="Button Name"
+                          />
+                          <input
+                            type="text"
+                            value={link.url}
+                            onChange={(e) => {
+                              const updated = [...uploadForm.links];
+                              updated[i] = { ...updated[i], url: e.target.value };
+                              setUploadForm({ ...uploadForm, links: updated });
+                            }}
+                            className="flex-1 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                            placeholder="https://mediafire.com/..."
+                          />
+                          {(uploadForm.links || []).length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = uploadForm.links.filter((_, idx) => idx !== i);
+                                setUploadForm({ ...uploadForm, links: updated });
+                              }}
+                              className="shrink-0 rounded-xl bg-rose-500/10 p-2 text-rose-400 hover:bg-rose-500/20 transition"
+                            >
+                              🗑
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setUploadForm({ ...uploadForm, links: [...(uploadForm.links || []), { label: "Download", url: "" }] })}
+                        className="w-full rounded-xl border border-dashed border-white/20 py-2 text-sm text-gray-400 hover:text-white hover:border-white/40 transition"
+                      >
+                        + Add Another Link
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {!uploadForm.download_link ? (
-                  <input
-                    type="file"
-                    onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0], download_link: "" })}
-                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
-                  />
-                ) : (
-                  <input
-                    type="text"
-                    value={uploadForm.download_link}
-                    onChange={(e) => setUploadForm({ ...uploadForm, download_link: e.target.value, file: null })}
-                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
-                    placeholder="e.g. https://mediafire.com/file/... or https://drive.google.com/..."
-                  />
-                )}
-              </div>
+              )}
+
+              {/* File for requirements */}
+              {tab === "requirements" && (
+                <input
+                  type="file"
+                  onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
+                />
+              )}
+
 
               {/* React Enable/Disable Toggle */}
               <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
@@ -820,7 +895,7 @@ export default function AdminPanel() {
               onClick={() => {
                 setShowEditModal(false);
                 setEditingItem(null);
-                setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "" });
+                setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", links: [{ label: "Download", url: "" }], useLinks: false, file: null, req_name: "" });
               }}
               className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-gray-400 transition hover:bg-white/20"
             >
@@ -925,45 +1000,93 @@ export default function AdminPanel() {
               )}
 
 
-              {/* File OR Download Link — pick one */}
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
-                <p className="text-sm font-semibold text-white">📁 Download Source <span className="text-gray-400 font-normal">(Pick one)</span></p>
-                <div className="flex rounded-xl overflow-hidden border border-white/10">
-                  <button
-                    type="button"
-                    onClick={() => setUploadForm({ ...uploadForm, download_link: "", file: uploadForm.file })}
-                    className={`flex-1 py-2 text-sm font-semibold transition ${
-                      !uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    📂 Upload File
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setUploadForm({ ...uploadForm, file: null, download_link: uploadForm.download_link || " " })}
-                    className={`flex-1 py-2 text-sm font-semibold transition ${
-                      uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    🔗 External Link
-                  </button>
+              {/* Download Source — only for panels and bypasses */}
+              {(tab === "panels" || tab === "bypasses") && (
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                  <p className="text-sm font-semibold text-white">📁 Download Source <span className="text-gray-400 font-normal">(Pick one)</span></p>
+                  <div className="flex rounded-xl overflow-hidden border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setUploadForm({ ...uploadForm, useLinks: false, file: null })}
+                      className={`flex-1 py-2 text-sm font-semibold transition ${!uploadForm.useLinks ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"}`}
+                    >
+                      📂 Upload File
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUploadForm({ ...uploadForm, useLinks: true, file: null })}
+                      className={`flex-1 py-2 text-sm font-semibold transition ${uploadForm.useLinks ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"}`}
+                    >
+                      🔗 Multiple Links
+                    </button>
+                  </div>
+
+                  {!uploadForm.useLinks ? (
+                    <input
+                      type="file"
+                      onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                      className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
+                    />
+                  ) : (
+                    <div className="space-y-2">
+                      {(uploadForm.links || []).map((link, i) => (
+                        <div key={i} className="flex gap-2 items-center">
+                          <input
+                            type="text"
+                            value={link.label}
+                            onChange={(e) => {
+                              const updated = [...uploadForm.links];
+                              updated[i] = { ...updated[i], label: e.target.value };
+                              setUploadForm({ ...uploadForm, links: updated });
+                            }}
+                            className="w-36 shrink-0 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                            placeholder="Button Name"
+                          />
+                          <input
+                            type="text"
+                            value={link.url}
+                            onChange={(e) => {
+                              const updated = [...uploadForm.links];
+                              updated[i] = { ...updated[i], url: e.target.value };
+                              setUploadForm({ ...uploadForm, links: updated });
+                            }}
+                            className="flex-1 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                            placeholder="https://mediafire.com/..."
+                          />
+                          {(uploadForm.links || []).length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = uploadForm.links.filter((_, idx) => idx !== i);
+                                setUploadForm({ ...uploadForm, links: updated });
+                              }}
+                              className="shrink-0 rounded-xl bg-rose-500/10 p-2 text-rose-400 hover:bg-rose-500/20 transition"
+                            >
+                              🗑
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setUploadForm({ ...uploadForm, links: [...(uploadForm.links || []), { label: "Download", url: "" }] })}
+                        className="w-full rounded-xl border border-dashed border-white/20 py-2 text-sm text-gray-400 hover:text-white hover:border-white/40 transition"
+                      >
+                        + Add Another Link
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {!uploadForm.download_link ? (
-                  <input
-                    type="file"
-                    onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0], download_link: "" })}
-                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
-                  />
-                ) : (
-                  <input
-                    type="text"
-                    value={uploadForm.download_link.trim()}
-                    onChange={(e) => setUploadForm({ ...uploadForm, download_link: e.target.value, file: null })}
-                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
-                    placeholder="e.g. https://mediafire.com/file/... or https://drive.google.com/..."
-                  />
-                )}
-              </div>
+              )}
+
+              {/* File for requirements */}
+              {tab === "requirements" && (
+                <input
+                  type="file"
+                  onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
+                />
+              )}
 
 
               {/* React Enable/Disable Toggle */}

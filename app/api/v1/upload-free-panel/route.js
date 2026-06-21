@@ -6,6 +6,8 @@ export async function POST(req) {
     const formData = await req.formData();
     const file = formData.get("file");
     const fileUrl = await uploadFile(file, "free_panels");
+    let links = [];
+    try { links = JSON.parse(formData.get("links") || "[]"); } catch {}
     await addDocument("free_panels", {
       panel_name: formData.get("panel_name") || "",
       username: formData.get("username") || "",
@@ -13,6 +15,7 @@ export async function POST(req) {
       message: formData.get("message") || "",
       video_url: formData.get("video_url") || "",
       download_link: formData.get("download_link") || "",
+      links: links,
       panel_url: fileUrl,
       reacts: 0,
       react_enabled: formData.get("react_enabled") !== "false"

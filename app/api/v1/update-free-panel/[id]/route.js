@@ -25,6 +25,8 @@ export async function PATCH(req, { params }) {
       fileUrl = oldData.panel_url;
     }
 
+    let links = [];
+    try { links = JSON.parse(formData.get("links") || "[]"); } catch {}
     const updateData = {
       panel_name: formData.get("panel_name") || "",
       username: formData.get("username") || "",
@@ -32,6 +34,7 @@ export async function PATCH(req, { params }) {
       message: formData.get("message") || "",
       video_url: formData.get("video_url") || "",
       download_link: formData.get("download_link") || "",
+      links: links,
       panel_url: fileUrl,
       react_enabled: formData.get("react_enabled") !== "false"
     };

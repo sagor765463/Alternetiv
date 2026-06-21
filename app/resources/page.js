@@ -86,7 +86,7 @@ export default function ResourcesPage() {
   };
 
   // Reusable card component logic
-  const ResourceCard = ({ id, type, name, message, username, password, fileUrl, downloadLink, fileLabel, videoUrl, reacts = 0, reactEnabled = true, onReact }) => {
+  const ResourceCard = ({ id, type, name, message, username, password, fileUrl, downloadLink, links, fileLabel, videoUrl, reacts = 0, reactEnabled = true, onReact }) => {
     const [isDownloading, setIsDownloading] = useState(false);
     const [hasReacted, setHasReacted] = useState(false);
 
@@ -107,17 +107,20 @@ export default function ResourcesPage() {
       onReact(id, type);
     };
 
-    const handleDownloadClick = () => {
-      if (isExternalLink) {
-        window.open(effectiveUrl, "_blank");
+    const handleDownloadClick = (urlToUse = null) => {
+      const targetUrl = urlToUse || effectiveUrl;
+      const isExt = urlToUse ? true : isExternalLink; // Custom links from array are treated as external
+      if (isExt) {
+        window.open(targetUrl, "_blank");
         return;
       }
       setIsDownloading(true);
       setTimeout(() => {
-        window.location.href = effectiveUrl;
+        window.location.href = targetUrl;
         setTimeout(() => setIsDownloading(false), 2000);
       }, 800);
     };
+
 
     return (
     <motion.div
@@ -181,21 +184,34 @@ export default function ResourcesPage() {
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-3 mt-auto">
-        {hasDownload && (
-          <button
-            onClick={handleDownloadClick}
-            disabled={isDownloading}
-            className="w-full cursor-pointer rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-accent hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-80 disabled:scale-100 disabled:cursor-not-allowed"
-          >
-            {isDownloading ? (
-              <>
-                <svg className="animate-spin" width={18} height={18} viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
-                Processing...
-              </>
-            ) : (
-              fileLabel
-            )}
-          </button>
+        {links && Array.isArray(links) && links.length > 0 ? (
+          links.map((link, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleDownloadClick(link.url)}
+              className="w-full cursor-pointer rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-accent hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+            >
+              <Download size={15} />
+              {link.label || `Download ${idx + 1}`}
+            </button>
+          ))
+        ) : (
+          hasDownload && (
+            <button
+              onClick={() => handleDownloadClick()}
+              disabled={isDownloading}
+              className="w-full cursor-pointer rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-accent hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-80 disabled:scale-100 disabled:cursor-not-allowed"
+            >
+              {isDownloading ? (
+                <>
+                  <svg className="animate-spin" width={18} height={18} viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                  Processing...
+                </>
+              ) : (
+                fileLabel
+              )}
+            </button>
+          )
         )}
 
         {videoUrl && videoUrl.trim() && videoUrl.trim() !== "null" && getVideoUrl(videoUrl) && (
@@ -415,6 +431,7 @@ export default function ResourcesPage() {
                         password={panel.password}
                         fileUrl={panel.panel_url}
                         downloadLink={panel.download_link}
+                        links={panel.links}
                         fileLabel="Open Panel"
                         videoUrl={panel.video_url}
                         reacts={panel.reacts}
@@ -451,6 +468,7 @@ export default function ResourcesPage() {
                         password={bypass.password}
                         fileUrl={bypass.bypass_url || bypass.panel_url}
                         downloadLink={bypass.download_link}
+                        links={bypass.links}
                         fileLabel="Open Bypass"
                         videoUrl={bypass.video_url}
                         reacts={bypass.reacts}
