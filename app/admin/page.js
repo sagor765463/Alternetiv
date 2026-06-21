@@ -107,7 +107,12 @@ export default function AdminPanel() {
       formData.append("message", uploadForm.message);
       formData.append("video_url", uploadForm.video_url);
       formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
-      if (uploadForm.file) formData.append("file", uploadForm.file);
+      if (uploadForm.file) {
+        formData.append("file", uploadForm.file);
+      } else {
+        const dummyFile = new File(["no-file"], "nofile.txt", { type: "text/plain" });
+        formData.append("file", dummyFile);
+      }
     }
 
     try {
@@ -681,12 +686,11 @@ export default function AdminPanel() {
               )}
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">File</label>
+                <label className="mb-2 block text-sm font-medium text-gray-300">File <span className="text-gray-500 font-normal">(Optional)</span></label>
                 <input
                   type="file"
                   onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
-                  required={tab === "requirements"}
                 />
               </div>
 
