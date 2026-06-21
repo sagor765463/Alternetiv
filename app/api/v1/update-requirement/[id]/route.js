@@ -27,6 +27,8 @@ export async function PATCH(req, { params }) {
 
     const updateData = {
       req_name: formData.get("req_name") || "",
+      message: formData.get("message") || "",
+      video_url: formData.get("video_url") || "",
       req_url: fileUrl,
       react_enabled: formData.get("react_enabled") !== "false"
     };

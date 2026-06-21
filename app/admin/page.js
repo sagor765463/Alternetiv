@@ -104,6 +104,8 @@ export default function AdminPanel() {
       }
     } else {
       formData.append("req_name", uploadForm.req_name);
+      formData.append("message", uploadForm.message);
+      formData.append("video_url", uploadForm.video_url);
       formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
       if (uploadForm.file) formData.append("file", uploadForm.file);
     }
@@ -205,7 +207,8 @@ export default function AdminPanel() {
         panel_name: "",
         username: "",
         password: "",
-        message: "",
+        message: item.message || "",
+        video_url: item.video_url || "",
         file: null,
         req_name: item.req_name,
         react_enabled: item.react_enabled !== false,
@@ -235,6 +238,8 @@ export default function AdminPanel() {
         }
       } else {
         formData.append("req_name", uploadForm.req_name);
+        formData.append("message", uploadForm.message);
+        formData.append("video_url", uploadForm.video_url);
         formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
         if (uploadForm.file) formData.append("file", uploadForm.file);
       }
@@ -641,17 +646,38 @@ export default function AdminPanel() {
               )}
 
               {tab === "requirements" && (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-300">Requirement Name</label>
-                  <input
-                    type="text"
-                    value={uploadForm.req_name}
-                    onChange={(e) => setUploadForm({ ...uploadForm, req_name: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
-                    placeholder="Enter requirement name"
-                    required
-                  />
-                </div>
+                <>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-300">Requirement Name</label>
+                    <input
+                      type="text"
+                      value={uploadForm.req_name}
+                      onChange={(e) => setUploadForm({ ...uploadForm, req_name: e.target.value })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                      placeholder="Enter requirement name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-300">Announcement Message (Optional)</label>
+                    <textarea
+                      value={uploadForm.message}
+                      onChange={(e) => setUploadForm({ ...uploadForm, message: e.target.value })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none min-h-[120px]"
+                      placeholder="Enter a rich message like Discord announcement here. Use **bold** and [link text](url) to style."
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-300">Apply Process Video URL (Optional)</label>
+                    <input
+                      type="text"
+                      value={uploadForm.video_url}
+                      onChange={(e) => setUploadForm({ ...uploadForm, video_url: e.target.value })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                      placeholder="e.g. https://youtube.com/watch?v=..."
+                    />
+                  </div>
+                </>
               )}
 
               <div>
@@ -822,17 +848,38 @@ export default function AdminPanel() {
               )}
 
               {tab === "requirements" && (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-300">Requirement Name</label>
-                  <input
-                    type="text"
-                    value={uploadForm.req_name}
-                    onChange={(e) => setUploadForm({ ...uploadForm, req_name: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
-                    placeholder="Enter requirement name"
-                    required
-                  />
-                </div>
+                <>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-300">Requirement Name</label>
+                    <input
+                      type="text"
+                      value={uploadForm.req_name}
+                      onChange={(e) => setUploadForm({ ...uploadForm, req_name: e.target.value })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                      placeholder="Enter requirement name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-300">Announcement Message (Optional)</label>
+                    <textarea
+                      value={uploadForm.message}
+                      onChange={(e) => setUploadForm({ ...uploadForm, message: e.target.value })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none min-h-[120px]"
+                      placeholder="Enter a rich message like Discord announcement here. Use **bold** and [link text](url) to style."
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-300">Apply Process Video URL (Optional)</label>
+                    <input
+                      type="text"
+                      value={uploadForm.video_url}
+                      onChange={(e) => setUploadForm({ ...uploadForm, video_url: e.target.value })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                      placeholder="e.g. https://youtube.com/watch?v=..."
+                    />
+                  </div>
+                </>
               )}
 
               <div>

@@ -197,7 +197,7 @@ export default function ResourcesPage() {
             className="w-full inline-flex items-center justify-center gap-2.5 cursor-pointer rounded-2xl border border-red-500/40 bg-red-500/10 px-6 py-3.5 text-sm font-bold text-red-400 transition-all duration-200 hover:bg-red-500/20 hover:border-red-400/60 hover:scale-[1.02] active:scale-95"
           >
             <Play size={16} className="fill-red-400" />
-            Watch Tutorial
+            Apply Process
             <ExternalLink size={14} className="opacity-60" />
           </a>
         )}
@@ -206,7 +206,7 @@ export default function ResourcesPage() {
     );
   };
 
-  const RequirementCard = ({ id, name, url, index, reacts = 0, reactEnabled = true, onReact }) => {
+  const RequirementCard = ({ id, name, url, message, videoUrl, index, reacts = 0, reactEnabled = true, onReact }) => {
     const [hasReacted, setHasReacted] = useState(false);
 
     useEffect(() => {
@@ -228,19 +228,22 @@ export default function ResourcesPage() {
         whileInView="visible"
         viewport={{ once: true }}
         variants={fadeUp}
-        className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-7 shadow-xl shadow-black/20 backdrop-blur-sm transition-all duration-300 hover:border-primary/30"
+        className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-7 shadow-xl shadow-black/20 backdrop-blur-sm transition-all duration-300 hover:border-primary/30 flex flex-col gap-4"
       >
         <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-all duration-500 group-hover:bg-primary/20" />
         
-        <div className="flex items-start justify-between mb-4">
-          <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
-            <Layers size={18} />
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20 shrink-0">
+              <Layers size={18} />
+            </div>
+            <h3 className="text-xl font-bold text-white">{name}</h3>
           </div>
 
           {reactEnabled && (
             <button
               onClick={handleReactClick}
-              className={`inline-flex h-10 gap-1.5 px-3 items-center justify-center rounded-2xl border transition-all duration-300 cursor-pointer active:scale-90 ${
+              className={`inline-flex h-10 gap-1.5 px-3 items-center justify-center rounded-2xl border transition-all duration-300 cursor-pointer active:scale-90 shrink-0 ${
                 hasReacted
                   ? "bg-red-500/20 border-red-500 text-red-500 hover:bg-red-500/30"
                   : "bg-white/5 border-white/10 text-gray-400 hover:text-red-400 hover:border-red-400/50 hover:bg-red-500/10"
@@ -252,17 +255,42 @@ export default function ResourcesPage() {
           )}
         </div>
 
-        <h3 className="text-xl font-bold text-white">{name}</h3>
-        <p className="mt-2 text-sm text-gray-400 font-medium">Required file for setup.</p>
-        <button
-          onClick={() => handleOpen(url)}
-          className="mt-6 cursor-pointer w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-white/8 border border-white/10 px-5 py-3 text-sm font-bold text-white transition-all duration-200 hover:bg-white/15 hover:scale-[1.02] active:scale-95"
-        >
-          <Download size={15} />
-          Download
-        </button>
+        {message && message.trim() ? (
+          <div
+            className="text-sm text-gray-300 leading-relaxed bg-black/30 p-4 rounded-2xl border border-white/5 break-words overflow-hidden"
+            dangerouslySetInnerHTML={renderMarkdown(message)}
+          />
+        ) : (
+          <p className="text-sm text-gray-400 font-medium">Required file for setup.</p>
+        )}
+
+        <div className="flex flex-col gap-3 mt-auto">
+          {url && !url.includes("nofile.txt") && (
+            <button
+              onClick={() => handleOpen(url)}
+              className="cursor-pointer w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-accent hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20"
+            >
+              <Download size={15} />
+              Download
+            </button>
+          )}
+
+          {videoUrl && videoUrl.trim() && videoUrl.trim() !== "null" && getVideoUrl(videoUrl) && (
+            <a
+              href={getVideoUrl(videoUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2.5 cursor-pointer rounded-2xl border border-red-500/40 bg-red-500/10 px-6 py-3.5 text-sm font-bold text-red-400 transition-all duration-200 hover:bg-red-500/20 hover:border-red-400/60 hover:scale-[1.02] active:scale-95"
+            >
+              <Play size={16} className="fill-red-400" />
+              Watch Tutorial
+              <ExternalLink size={14} className="opacity-60" />
+            </a>
+          )}
+        </div>
       </motion.div>
     );
+
   };
 
   const handleReact = async (id, type) => {
@@ -439,6 +467,8 @@ export default function ResourcesPage() {
                       id={req.id}
                       name={req.req_name}
                       url={req.req_url}
+                      message={req.message}
+                      videoUrl={req.video_url}
                       index={index}
                       reacts={req.reacts}
                       reactEnabled={req.react_enabled !== false}
