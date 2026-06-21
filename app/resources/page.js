@@ -40,10 +40,10 @@ export default function ResourcesPage() {
   };
 
   const getVideoUrl = (url) => {
-    if (!url) return null;
+    if (!url || !url.trim() || url.trim() === "null") return null;
     const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
     if (match && match[1]) return `https://www.youtube.com/watch?v=${match[1]}`;
-    return url; // return as-is for non-youtube links
+    return url.trim(); // return as-is for non-youtube links
   };
 
   useEffect(() => {
@@ -128,7 +128,7 @@ export default function ResourcesPage() {
 
           {message ? (
             <div
-              className="mt-4 text-sm text-gray-300 leading-relaxed font-mono bg-black/30 p-4 rounded-2xl border border-white/5 break-words whitespace-pre-wrap overflow-hidden"
+              className="mt-4 text-sm text-gray-300 leading-relaxed bg-black/30 p-4 rounded-2xl border border-white/5 break-words overflow-hidden"
               dangerouslySetInnerHTML={renderMarkdown(message)}
             />
           ) : (
@@ -189,7 +189,7 @@ export default function ResourcesPage() {
           </button>
         )}
 
-        {videoUrl && getVideoUrl(videoUrl) && (
+        {videoUrl && videoUrl.trim() && videoUrl.trim() !== "null" && getVideoUrl(videoUrl) && (
           <a
             href={getVideoUrl(videoUrl)}
             target="_blank"
