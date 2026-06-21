@@ -10,6 +10,7 @@ export async function POST(req) {
       req_name: formData.get("req_name") || "",
       message: formData.get("message") || "",
       video_url: formData.get("video_url") || "",
+      download_link: formData.get("download_link") || "",
       req_url: fileUrl,
       reacts: 0,
       react_enabled: formData.get("react_enabled") !== "false"

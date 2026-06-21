@@ -34,6 +34,7 @@ export default function AdminPanel() {
     password: "",
     message: "",
     video_url: "",
+    download_link: "",
     file: null,
     req_name: "",
     react_enabled: true,
@@ -95,6 +96,7 @@ export default function AdminPanel() {
       formData.append("password", uploadForm.password);
       formData.append("message", uploadForm.message);
       formData.append("video_url", uploadForm.video_url);
+      formData.append("download_link", uploadForm.download_link);
       formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
       if (uploadForm.file) {
         formData.append("file", uploadForm.file);
@@ -106,6 +108,7 @@ export default function AdminPanel() {
       formData.append("req_name", uploadForm.req_name);
       formData.append("message", uploadForm.message);
       formData.append("video_url", uploadForm.video_url);
+      formData.append("download_link", uploadForm.download_link);
       formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
       if (uploadForm.file) {
         formData.append("file", uploadForm.file);
@@ -129,7 +132,7 @@ export default function AdminPanel() {
 
       if (res.ok) {
         setShowUploadModal(false);
-        setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", file: null, req_name: "", react_enabled: true });
+        setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true });
         // Refetch only the affected list (faster than full reload)
         if (tab === "panels") {
           fetch(apiUrl("free-panel-list"), { credentials: "include" })
@@ -203,6 +206,7 @@ export default function AdminPanel() {
         password: item.password || "",
         message: item.message || "",
         video_url: item.video_url || "",
+        download_link: item.download_link || "",
         file: null,
         req_name: "",
         react_enabled: item.react_enabled !== false,
@@ -214,6 +218,7 @@ export default function AdminPanel() {
         password: "",
         message: item.message || "",
         video_url: item.video_url || "",
+        download_link: item.download_link || "",
         file: null,
         req_name: item.req_name,
         react_enabled: item.react_enabled !== false,
@@ -234,6 +239,7 @@ export default function AdminPanel() {
         formData.append("password", uploadForm.password);
         formData.append("message", uploadForm.message);
         formData.append("video_url", uploadForm.video_url);
+        formData.append("download_link", uploadForm.download_link);
         formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
         if (uploadForm.file) {
           formData.append("file", uploadForm.file);
@@ -245,6 +251,7 @@ export default function AdminPanel() {
         formData.append("req_name", uploadForm.req_name);
         formData.append("message", uploadForm.message);
         formData.append("video_url", uploadForm.video_url);
+        formData.append("download_link", uploadForm.download_link);
         formData.append("react_enabled", uploadForm.react_enabled ? "true" : "false");
         if (uploadForm.file) formData.append("file", uploadForm.file);
       }
@@ -263,7 +270,7 @@ export default function AdminPanel() {
       if (res.ok) {
         setShowEditModal(false);
         setEditingItem(null);
-        setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", file: null, req_name: "", react_enabled: true });
+        setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true });
         loadData();
       } else {
         alert("Update failed");
@@ -371,7 +378,7 @@ export default function AdminPanel() {
                     <p className="mt-1 text-sm text-gray-400">Manage free panel entries</p>
                   </div>
                   <button
-                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
+                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent"
                   >
                     <Upload size={18} /> Upload Panel
@@ -442,7 +449,7 @@ export default function AdminPanel() {
                     <p className="mt-1 text-sm text-gray-400">Manage free bypass entries</p>
                   </div>
                   <button
-                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
+                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent"
                   >
                     <Upload size={18} /> Upload Bypass
@@ -513,7 +520,7 @@ export default function AdminPanel() {
                     <p className="mt-1 text-sm text-gray-400">Manage requirement files and resources</p>
                   </div>
                   <button
-                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
+                    onClick={() => { setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "", react_enabled: true }); setShowUploadModal(true); }}
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent"
                   >
                     <Upload size={18} /> Upload Requirement
@@ -685,13 +692,44 @@ export default function AdminPanel() {
                 </>
               )}
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">File <span className="text-gray-500 font-normal">(Optional)</span></label>
-                <input
-                  type="file"
-                  onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
-                />
+              {/* File OR Download Link — pick one */}
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                <p className="text-sm font-semibold text-white">📁 Download Source <span className="text-gray-400 font-normal">(Pick one)</span></p>
+                <div className="flex rounded-xl overflow-hidden border border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setUploadForm({ ...uploadForm, download_link: "", file: uploadForm.file })}
+                    className={`flex-1 py-2 text-sm font-semibold transition ${
+                      !uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    📂 Upload File
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUploadForm({ ...uploadForm, file: null, download_link: uploadForm.download_link || "" })}
+                    className={`flex-1 py-2 text-sm font-semibold transition ${
+                      uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    🔗 External Link
+                  </button>
+                </div>
+                {!uploadForm.download_link ? (
+                  <input
+                    type="file"
+                    onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0], download_link: "" })}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={uploadForm.download_link}
+                    onChange={(e) => setUploadForm({ ...uploadForm, download_link: e.target.value, file: null })}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                    placeholder="e.g. https://mediafire.com/file/... or https://drive.google.com/..."
+                  />
+                )}
               </div>
 
               {/* React Enable/Disable Toggle */}
@@ -782,7 +820,7 @@ export default function AdminPanel() {
               onClick={() => {
                 setShowEditModal(false);
                 setEditingItem(null);
-                setUploadForm({ panel_name: "", username: "", password: "", file: null, req_name: "" });
+                setUploadForm({ panel_name: "", username: "", password: "", message: "", video_url: "", download_link: "", file: null, req_name: "" });
               }}
               className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-gray-400 transition hover:bg-white/20"
             >
@@ -886,14 +924,47 @@ export default function AdminPanel() {
                 </>
               )}
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">File (optional)</label>
-                <input
-                  type="file"
-                  onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
-                />
+
+              {/* File OR Download Link — pick one */}
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                <p className="text-sm font-semibold text-white">📁 Download Source <span className="text-gray-400 font-normal">(Pick one)</span></p>
+                <div className="flex rounded-xl overflow-hidden border border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setUploadForm({ ...uploadForm, download_link: "", file: uploadForm.file })}
+                    className={`flex-1 py-2 text-sm font-semibold transition ${
+                      !uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    📂 Upload File
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUploadForm({ ...uploadForm, file: null, download_link: uploadForm.download_link || " " })}
+                    className={`flex-1 py-2 text-sm font-semibold transition ${
+                      uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    🔗 External Link
+                  </button>
+                </div>
+                {!uploadForm.download_link ? (
+                  <input
+                    type="file"
+                    onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0], download_link: "" })}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:text-white focus:border-primary focus:outline-none"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={uploadForm.download_link.trim()}
+                    onChange={(e) => setUploadForm({ ...uploadForm, download_link: e.target.value, file: null })}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:outline-none"
+                    placeholder="e.g. https://mediafire.com/file/... or https://drive.google.com/..."
+                  />
+                )}
               </div>
+
 
               {/* React Enable/Disable Toggle */}
               <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-5 py-4">

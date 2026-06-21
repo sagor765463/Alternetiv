@@ -31,6 +31,7 @@ export async function PATCH(req, { params }) {
       password: formData.get("password") || "",
       message: formData.get("message") || "",
       video_url: formData.get("video_url") || "",
+      download_link: formData.get("download_link") || "",
       bypass_url: fileUrl,
       react_enabled: formData.get("react_enabled") !== "false"
     };

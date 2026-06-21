@@ -86,9 +86,14 @@ export default function ResourcesPage() {
   };
 
   // Reusable card component logic
-  const ResourceCard = ({ id, type, name, message, username, password, fileUrl, fileLabel, videoUrl, reacts = 0, reactEnabled = true, onReact }) => {
+  const ResourceCard = ({ id, type, name, message, username, password, fileUrl, downloadLink, fileLabel, videoUrl, reacts = 0, reactEnabled = true, onReact }) => {
     const [isDownloading, setIsDownloading] = useState(false);
     const [hasReacted, setHasReacted] = useState(false);
+
+    // Use external download link if provided, otherwise use uploaded file URL
+    const effectiveUrl = (downloadLink && downloadLink.trim()) ? downloadLink.trim() : fileUrl;
+    const hasDownload = effectiveUrl && !effectiveUrl.includes("nofile.txt");
+    const isExternalLink = !!(downloadLink && downloadLink.trim());
 
     useEffect(() => {
       if (typeof window !== "undefined") {
@@ -103,9 +108,13 @@ export default function ResourcesPage() {
     };
 
     const handleDownloadClick = () => {
+      if (isExternalLink) {
+        window.open(effectiveUrl, "_blank");
+        return;
+      }
       setIsDownloading(true);
       setTimeout(() => {
-        window.location.href = fileUrl;
+        window.location.href = effectiveUrl;
         setTimeout(() => setIsDownloading(false), 2000);
       }, 800);
     };
@@ -172,7 +181,7 @@ export default function ResourcesPage() {
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-3 mt-auto">
-        {fileUrl && !fileUrl.includes("nofile.txt") && (
+        {hasDownload && (
           <button
             onClick={handleDownloadClick}
             disabled={isDownloading}
@@ -206,7 +215,7 @@ export default function ResourcesPage() {
     );
   };
 
-  const RequirementCard = ({ id, name, url, message, videoUrl, index, reacts = 0, reactEnabled = true, onReact }) => {
+  const RequirementCard = ({ id, name, url, downloadLink, message, videoUrl, index, reacts = 0, reactEnabled = true, onReact }) => {
     const [hasReacted, setHasReacted] = useState(false);
 
     useEffect(() => {
@@ -265,15 +274,21 @@ export default function ResourcesPage() {
         )}
 
         <div className="flex flex-col gap-3 mt-auto">
-          {url && !url.includes("nofile.txt") && (
-            <button
-              onClick={() => handleOpen(url)}
-              className="cursor-pointer w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-accent hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20"
-            >
-              <Download size={15} />
-              Download
-            </button>
-          )}
+          {(() => {
+            const effectiveUrl = (downloadLink && downloadLink.trim()) ? downloadLink.trim() : url;
+            const hasDownload = effectiveUrl && !effectiveUrl.includes("nofile.txt");
+            const isExternal = !!(downloadLink && downloadLink.trim());
+            if (!hasDownload) return null;
+            return (
+              <button
+                onClick={() => isExternal ? window.open(effectiveUrl, "_blank") : handleOpen(effectiveUrl)}
+                className="cursor-pointer w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-accent hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20"
+              >
+                <Download size={15} />
+                Download
+              </button>
+            );
+          })()}
 
           {videoUrl && videoUrl.trim() && videoUrl.trim() !== "null" && getVideoUrl(videoUrl) && (
             <a
@@ -399,6 +414,7 @@ export default function ResourcesPage() {
                         username={panel.username}
                         password={panel.password}
                         fileUrl={panel.panel_url}
+                        downloadLink={panel.download_link}
                         fileLabel="Open Panel"
                         videoUrl={panel.video_url}
                         reacts={panel.reacts}
@@ -434,6 +450,7 @@ export default function ResourcesPage() {
                         username={bypass.username}
                         password={bypass.password}
                         fileUrl={bypass.bypass_url || bypass.panel_url}
+                        downloadLink={bypass.download_link}
                         fileLabel="Open Bypass"
                         videoUrl={bypass.video_url}
                         reacts={bypass.reacts}
@@ -467,6 +484,7 @@ export default function ResourcesPage() {
                       id={req.id}
                       name={req.req_name}
                       url={req.req_url}
+                      downloadLink={req.download_link}
                       message={req.message}
                       videoUrl={req.video_url}
                       index={index}
