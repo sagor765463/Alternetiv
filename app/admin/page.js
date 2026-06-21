@@ -707,7 +707,7 @@ export default function AdminPanel() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setUploadForm({ ...uploadForm, file: null, download_link: uploadForm.download_link || "" })}
+                    onClick={() => setUploadForm({ ...uploadForm, file: null, download_link: uploadForm.download_link || " " })}
                     className={`flex-1 py-2 text-sm font-semibold transition ${
                       uploadForm.download_link ? "bg-primary text-white" : "bg-transparent text-gray-400 hover:text-white"
                     }`}
