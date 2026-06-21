@@ -30,11 +30,12 @@ export default function ResourcesPage() {
       .replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
       .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-semibold">$1</a>')
-      .replace(/`(.*?)`/g, '<code class="bg-white/10 px-1.5 py-0.5 rounded text-sm text-primary">$1</code>')
-      .replace(/\|\|(.*?)\|\|/g, '<span class="bg-black text-transparent hover:text-white transition-colors cursor-pointer px-2 py-0.5 rounded" title="Spoiler">$1</span>')
+      .replace(/`(.*?)`/g, '<code class="bg-primary/20 px-1.5 py-0.5 rounded text-sm text-primary border border-primary/30">$1</code>')
+      .replace(/\|\|(.*?)\|\|/g, '<span class="bg-white/10 text-transparent hover:text-white transition-colors cursor-pointer px-2 py-0.5 rounded" title="Spoiler">$1</span>')
       .replace(/^&gt;\s(.*)/gm, '<blockquote class="border-l-2 border-primary/50 pl-3 my-1 opacity-90 italic">$1</blockquote>')
       .replace(/&lt;:([a-zA-Z0-9_]+):[0-9]+&gt;/g, '')
-      .replace(/\n/g, '<br />');
+      .replace(/\n\s*\n/g, '<div class="h-2"></div>') // Handle double newlines as smaller gaps
+      .replace(/\n/g, '<br />'); // Regular newlines
     return { __html: html };
   };
 
