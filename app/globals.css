@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --background: var(--color-background);
+  --foreground: var(--color-text-primary);
+}
+
+@theme inline {
+  --color-primary: #8b5cf6;
+  --color-primary-glow: #8b5cf680;
+  --color-secondary: #a78bfa;
+  --color-accent: #c084fc;
+  --color-text-primary: #fff;
+  --color-text-secondary: #a0a0b8;
+  --color-glass-bg: #ffffff08;
+  --color-glass-border: #ffffff1a;
+  --color-background: #0f0f1a;
+  --color-bg-darker: #080810;
+  
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-outfit: var(--font-outfit);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--color-bg-darker);
+    --foreground: var(--color-text-primary);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-outfit), sans-serif;
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
